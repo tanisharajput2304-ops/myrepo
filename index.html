@@ -22,6 +22,12 @@
             overflow-x: hidden; /* Prevent horizontal scroll */
         }
 
+        /* Lock Screen */
+        #lock-screen {
+            background-color: #1a1a1a;
+            z-index: 200;
+        }
+
         /* Flame animation */
         .flame {
             /* Base styles for the flame element */
@@ -139,20 +145,57 @@
                  animation: sway-down 5s infinite alternate ease-in-out -2.5s;
             }
         }
+
+        /* Kisses background pattern */
+        .kisses-bg {
+            background-color: #2b2b2b; /* Darker grey base */
+            background-image: 
+                radial-gradient(circle at 10% 20%, #ff69b4 2px, transparent 2px),
+                radial-gradient(circle at 90% 80%, #ff69b4 2px, transparent 2px),
+                radial-gradient(circle at 30% 70%, #ff69b4 2px, transparent 2px),
+                radial-gradient(circle at 70% 30%, #ff69b4 2px, transparent 2px),
+                radial-gradient(circle at 50% 50%, #ff69b4 2px, transparent 2px);
+            background-size: 50px 50px;
+            background-repeat: repeat;
+            animation: moveKisses 20s linear infinite;
+        }
+
+        @keyframes moveKisses {
+            from { background-position: 0 0; }
+            to { background-position: 50px 50px; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- Lock Screen (Initially visible) -->
+    <div id="lock-screen" class="fixed inset-0 flex flex-col items-center justify-center p-8 transition-opacity duration-1000">
+        <h1 class="text-4xl md:text-6xl font-black text-pink-400 mb-8">
+            This Page is Locked 🔒
+        </h1>
+        <p class="text-lg text-gray-300 mb-6">
+            Enter the secret code to continue:
+        </p>
+        <input type="password" id="password-input" 
+               class="p-3 text-center text-xl rounded-lg bg-gray-800 text-white border-2 border-pink-500 focus:outline-none focus:border-cyan-400 mb-4" 
+               placeholder="Secret Code" 
+               autofocus>
+        <button id="unlock-btn" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 text-lg">
+            Unlock
+        </button>
+        <p id="error-message" class="text-red-400 mt-4 h-6"></p>
+    </div>
 
     <!-- Confetti Canvas -->
     <canvas id="confetti-canvas" class="fixed top-0 left-0 w-full h-full z-40 pointer-events-none"></canvas>
     
     <!-- Always-available Party Pop Button -->
-    <button id="pop-btn" class="fixed bottom-4 right-4 z-[100] bg-pink-500 hover:bg-pink-600 text-white rounded-full p-3 h-14 w-14 flex items-center justify-center shadow-lg text-2xl transform transition duration-200 hover:scale-110">
-        ð
+    <button id="pop-btn" class="fixed bottom-4 right-4 z-[100] bg-pink-500 hover:bg-pink-600 text-white rounded-full p-3 h-14 w-14 flex items-center justify-center shadow-lg text-2xl transform transition duration-200 hover:scale-110 hidden">
+        🎉
     </button>
 
-    <!-- Main Content Container -->
-    <div id="app-container" class="relative z-50 min-h-screen flex flex-col items-center justify-center p-4 text-center overflow-hidden">
+    <!-- Main Content Container (Starts hidden) -->
+    <div id="app-container" class="relative z-50 min-h-screen flex flex-col items-center justify-center p-4 text-center overflow-hidden opacity-0 transition-opacity duration-1000 pointer-events-none">
         
         <!-- ======================= -->
         <!-- Section 1: Welcome -->
@@ -176,7 +219,7 @@
                     To My Love...
                 </h2>
                 <p class="text-xl md:text-2xl text-gray-200 leading-relaxed">
-                    Janamdin ki bohot bohot badhaai, my love! â¤ï¸
+                    Janamdin ki bohot bohot badhaai, my love! ❤️
                     Tum meri life mein sabse special ho. Hamesha aise hi happy aur awesome raho.
                     I'm so lucky to have you. Love you loads!
                 </p>
@@ -233,13 +276,32 @@
                 Blow Out Candles!
             </button>
             
-            <button id="btn-to-gallery" class="hidden mt-12 bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 text-lg">
+            <button id="btn-to-love-message" class="hidden mt-12 bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 text-lg">
+                One More Message &darr;
+            </button>
+        </section>
+
+        <!-- ======================= -->
+        <!-- Section 4: Love Message -->
+        <!-- ======================= -->
+        <section id="love-message-section" class="hidden flex-col items-center justify-center min-h-screen w-full kisses-bg p-4">
+            <div class="bg-black bg-opacity-70 p-8 rounded-2xl shadow-2xl max-w-2xl border-2 border-pink-400">
+                <h2 class="text-3xl md:text-5xl font-bold text-pink-300 mb-6">
+                    Lots of Love for You! 🥰
+                </h2>
+                <p class="text-xl md:text-2xl text-white leading-relaxed">
+                    Mere pyaare, you fill my life with so much joy aur happiness. 💖
+                    Har din tumhare saath special hota hai. May your day be as wonderful as you are!
+                    XOXO, with all my heart.
+                </p>
+            </div>
+            <button id="btn-to-gallery" class="mt-12 bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 text-lg">
                 See Our Memories &darr;
             </button>
         </section>
         
         <!-- ======================= -->
-        <!-- Section 4: Gallery -->
+        <!-- Section 5: Gallery -->
         <!-- ======================= -->
         <section id="gallery-section" class="hidden flex-col items-center justify-center min-h-screen w-full py-20">
             <h2 class="text-3xl md:text-5xl font-bold text-purple-400 mb-16">
@@ -253,59 +315,65 @@
                 
                 <div class="flex flex-col md:flex-row justify-center items-center md:items-start gap-12 md:gap-16 px-4">
                     
-                    <!-- Image 1 - FOR LOCAL USE, RENAME YOUR FILE TO 'photo1.jpg' -->
+                    <!-- Image 1 (with &raw=1 fix) -->
                     <div class="hanging-photo">
-                        <img src="photo1.jpg" 
-                             alt="Memory 1 - Happy Smile" 
-                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]"
-                             onerror="this.src='https://placehold.co/300x400/333/FFF?text=Image+1+Load+Error'">
+                        <img src="https://www.dropbox.com/scl/fi/1384aqutr9qn1hvwdj9v5/IMG_4902.jpeg?rlkey=1m441i72c6lzzt37nggouo7zk&raw=1" 
+                             alt="Memory 1" 
+                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]">
                     </div>
                     
-                    <!-- Image 2 - FOR LOCAL USE, RENAME YOUR FILE TO 'photo2.jpg' -->
+                    <!-- Image 2 (with &raw=1 fix) -->
                     <div class="hanging-photo photo-down">
-                        <img src="photo2.jpg" 
-                             alt="Memory 2 - Good Vibes Selfie" 
-                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]"
-                             onerror="this.src='https://placehold.co/300x400/555/FFF?text=Image+2+Load+Error'">
+                        <img src="https://www.dropbox.com/scl/fi/dlz15r5mwnf1smjut5pos/IMG_4903.jpeg?rlkey=w82l6kmxz7l1u465wxcp4wyp9&raw=1" 
+                             alt="Memory 2" 
+                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]">
                     </div>
                     
-                    <!-- Image 3 - FOR LOCAL USE, RENAME YOUR FILE TO 'photo3.jpg' -->
+                    <!-- Image 3 (with &raw=1 fix) -->
                     <div class="hanging-photo">
-                        <img src="photo3.jpg" 
-                             alt="Memory 3 - Daisy Filter Fun" 
-                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]"
-                             onerror="this.src='https://placehold.co/300x400/777/FFF?text=Image+3+Load+Error'">
+                        <img src="https://www.dropbox.com/scl/fi/6d9j5zyrg7j0m4xx8hl9a/IMG_4189.jpeg?rlkey=z6fnk91zj519zegowcn1d35vv&raw=1" 
+                             alt="Memory 3" 
+                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]">
                     </div>
                     
-                    <!-- Image 4 - FOR LOCAL USE, RENAME YOUR FILE TO 'photo4.jpg' -->
+                    <!-- Image 4 (with &raw=1 fix) -->
                     <div class="hanging-photo photo-down">
-                        <img src="photo4.jpg" 
-                             alt="Memory 4 - Cute Couple Pic" 
-                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]"
-                             onerror="this.src='https://placehold.co/300x400/777/FFF?text=Image+4+Load+Error'">
+                        <img src="https://www.dropbox.com/scl/fi/u2oec2sm2nc8y1u0s6v08/IMG_4148.png?rlkey=jx9za2crx1q9kt6lx62ww1aki&raw=1" 
+                             alt="Memory 4" 
+                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]">
                     </div>
                 </div>
             </div>
-             <p class="mt-16 text-2xl text-pink-400">Happy Birthday, again! â¤ï¸</p>
+             <p class="mt-16 text-2xl text-pink-400">Happy Birthday, again! ❤️</p>
         </section>
 
     </div>
 
     <script>
         // --- Global Variables ---
+        const CORRECT_PASSWORD = 'MYLOVE';
         let confettiInstance = null;
-
+        
+        // --- Lock Screen Elements ---
+        const lockScreen = document.getElementById('lock-screen');
+        const appContainer = document.getElementById('app-container');
+        const passwordInput = document.getElementById('password-input');
+        const unlockBtn = document.getElementById('unlock-btn');
+        const errorMessage = document.getElementById('error-message');
+        
         // --- Section Elements ---
         const welcomeSection = document.getElementById('welcome-section');
         const hinglishSection = document.getElementById('hinglish-section');
         const cakeSection = document.getElementById('cake-section');
+        const loveMessageSection = document.getElementById('love-message-section');
         const gallerySection = document.getElementById('gallery-section');
 
         // --- Button Elements ---
         const btnToHinglish = document.getElementById('btn-to-hinglish');
         const btnToCake = document.getElementById('btn-to-cake');
+        const btnToLoveMessage = document.getElementById('btn-to-love-message');
         const btnToGallery = document.getElementById('btn-to-gallery');
-        const blowBtn = document.getElementById('blow-btn'); // New button ID
+        const blowBtn = document.getElementById('blow-btn');
         const popBtn = document.getElementById('pop-btn');
 
         // --- Other UI Elements ---
@@ -315,6 +383,33 @@
         
         let candlesBlown = false;
 
+        // --- Lock Screen Logic ---
+        function attemptUnlock() {
+            const enteredPassword = passwordInput.value.trim();
+            if (enteredPassword === CORRECT_PASSWORD) {
+                // Success: Hide lock screen and show main content
+                lockScreen.style.opacity = '0';
+                lockScreen.style.pointerEvents = 'none';
+                appContainer.style.opacity = '1';
+                appContainer.style.pointerEvents = 'auto';
+                popBtn.classList.remove('hidden'); // Show party pop button
+                initializeConfetti(); // Start confetti
+            } else {
+                // Failure: Show error message
+                errorMessage.textContent = 'Incorrect code. Try again!';
+                passwordInput.value = '';
+                setTimeout(() => errorMessage.textContent = '', 2000);
+            }
+        }
+        
+        unlockBtn.addEventListener('click', attemptUnlock);
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                attemptUnlock();
+            }
+        });
+
+
         // --- Confetti Functions ---
         function initializeConfetti() {
             const canvas = document.getElementById('confetti-canvas');
@@ -323,7 +418,7 @@
                 useWorker: true
             });
             
-            // Initial burst on load
+            // Initial burst (after successful unlock)
             triggerConfettiBurst(0.5);
         }
 
@@ -354,7 +449,7 @@
 
         // --- Page Navigation ---
         function showSection(sectionToShow) {
-            [welcomeSection, hinglishSection, cakeSection, gallerySection].forEach(section => {
+            [welcomeSection, hinglishSection, cakeSection, loveMessageSection, gallerySection].forEach(section => {
                 section.classList.add('hidden');
                 section.classList.remove('flex');
             });
@@ -373,46 +468,50 @@
             triggerConfettiBurst(0.5);
         });
 
+        btnToLoveMessage.addEventListener('click', () => {
+            showSection(loveMessageSection);
+            triggerConfettiBurst(0.5); 
+        });
+
         btnToGallery.addEventListener('click', () => {
             showSection(gallerySection);
-            triggerConfettiBurst(0.2); // From the top
-            triggerConfettiBurst(0.8); // From the bottom
+            triggerConfettiBurst(0.2); 
+            triggerConfettiBurst(0.8);
         });
         
         popBtn.addEventListener('click', (e) => {
             triggerConfettiAtElement(e.currentTarget);
         });
 
-        // --- New Blow-out Function ---
+        // --- Blow-out Function ---
         function blowOutCandles() {
-            if (candlesBlown) return; // Prevent multiple clicks
+            if (candlesBlown) return;
             candlesBlown = true;
             
-            // 1. Extinguish flames with transition
+            // Extinguish flames
             flames.forEach(flame => {
                 flame.classList.remove('active');
             });
 
-            // 2. Update UI
-            blowStatus.textContent = "Your wish is granted! ð";
+            // Update UI
+            blowStatus.textContent = "Your wish is granted! 🎉";
             blowStatus.classList.add('text-green-400');
             blowInstructions.textContent = "Thank you for sharing your special day with me!";
             
-            // 3. Disable button and show next section button
+            // Disable button and show next section button
             blowBtn.disabled = true;
             blowBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            btnToGallery.classList.remove('hidden');
+            btnToLoveMessage.classList.remove('hidden');
             
-            // 4. Final burst!
+            // Final burst!
             triggerConfettiBurst(0.4);
         }
         
-        // --- Attach new click handler ---
         blowBtn.addEventListener('click', blowOutCandles);
 
 
         // --- Initialization ---
-        window.addEventListener('load', initializeConfetti);
+        // Do NOT call initializeConfetti on load, call it after successful unlock.
 
     </script>
 </body>
