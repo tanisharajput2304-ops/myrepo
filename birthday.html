@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* Custom styles */
+        body {
+            background-color: #1a1a1a; /* Dark theme */
+            color: #f0f0f0;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* Flame animation */
+        .flame {
+            /* Base styles for the flame element */
+            width: 1rem; 
+            height: 1.5rem; 
+            position: absolute;
+            top: -1.5rem; 
+            left: 50%;
+            transform: translateX(-50%);
+            transform-origin: bottom;
+            transition: all 0.3s ease-out; /* Smooth transition for the "blow" effect */
+        }
+        
+        .flame.active {
+            /* Lit state */
+            background-color: #fcd34d; /* bg-yellow-400 */
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: flicker 0.6s infinite alternate;
+            box-shadow: 0 0 10px #fcd34d, 0 0 20px #fcd34d;
+        }
+
+        @keyframes flicker {
+            0% {
+                transform: translateX(-50%) scaleY(1) scaleX(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translateX(-50%) scaleY(0.9) scaleX(1.1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateX(-50%) scaleY(1.1) scaleX(0.9);
+                opacity: 1;
+            }
+        }
+
+        /* Blown-out flame - triggers the "wind" effect transition */
+        .flame:not(.active) {
+            transform: translateX(-50%) scale(0.1) rotateZ(-10deg); /* Cute wind puff effect */
+            opacity: 0;
+        }
+
+        /* Clothesline gallery */
+        .clothesline-container {
+            position: relative;
+            padding-top: 20px; /* Space for rope */
+        }
+        
+        .rope {
+            width: 100%;
+            height: 4px;
+            background-color: #854d0e; /* brown-800 */
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hanging-photo {
+            position: relative;
+            padding-top: 40px; /* Space for the clip */
+            transform: rotate(-3deg);
+            animation: sway 5s infinite alternate ease-in-out;
+            transition: transform 0.3s ease;
+        }
+
+        .hanging-photo:hover {
+            transform: scale(1.05) rotate(0deg);
+        }
+
+        /* Vise-versa tilt */
+        .hanging-photo.photo-down {
+            transform: rotate(4deg);
+            animation-delay: -2.5s; /* Offset animation */
+        }
+
+        /* The "clip" */
+        .hanging-photo::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px; /* w-6 */
+            height: 36px; /* h-9 */
+            background-color: #d1d5db; /* bg-gray-300 */
+            border: 2px solid #6b7280; /* border-gray-500 */
+            border-radius: 5px;
+            z-index: 10;
+            box-shadow: inset 0 -4px 6px rgba(0,0,0,0.2);
+        }
+
+        @keyframes sway {
+            from { transform: rotate(-3deg); }
+            to { transform: rotate(3deg); }
+        }
+        
+        /* Vise-versa tilt for medium screens */
+        @media (min-width: 768px) {
+            .hanging-photo.photo-down {
+                transform: rotate(4deg) translateY(3rem); /* md:translate-y-12 */
+            }
+            
+            @keyframes sway {
+                from { transform: rotate(-3deg); }
+                to { transform: rotate(3deg); }
+            }
+
+            @keyframes sway-down {
+                from { transform: rotate(4deg) translateY(3rem); }
+                to { transform: rotate(-2deg) translateY(3rem); }
+            }
+            
+            .hanging-photo.photo-down {
+                 animation: sway-down 5s infinite alternate ease-in-out -2.5s;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas" class="fixed top-0 left-0 w-full h-full z-40 pointer-events-none"></canvas>
+    
+    <!-- Always-available Party Pop Button -->
+    <button id="pop-btn" class="fixed bottom-4 right-4 z-[100] bg-pink-500 hover:bg-pink-600 text-white rounded-full p-3 h-14 w-14 flex items-center justify-center shadow-lg text-2xl transform transition duration-200 hover:scale-110">
+        ð
+    </button>
+
+    <!-- Main Content Container -->
+    <div id="app-container" class="relative z-50 min-h-screen flex flex-col items-center justify-center p-4 text-center overflow-hidden">
+        
+        <!-- ======================= -->
+        <!-- Section 1: Welcome -->
+        <!-- ======================= -->
+        <section id="welcome-section" class="flex flex-col items-center justify-center min-h-screen w-full">
+            <h1 class="text-5xl md:text-7xl font-black text-pink-400 animate-pulse">
+                Happy Birthday!
+            </h1>
+            <p class="text-lg md:text-xl mt-4 text-gray-300">I made a little something for you...</p>
+            <button id="btn-to-hinglish" class="mt-12 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 text-lg">
+                Click Me!
+            </button>
+        </section>
+
+        <!-- ======================= -->
+        <!-- Section 2: Hinglish Message -->
+        <!-- ======================= -->
+        <section id="hinglish-section" class="hidden flex-col items-center justify-center min-h-screen w-full">
+            <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-2xl">
+                <h2 class="text-3xl md:text-5xl font-bold text-cyan-400 mb-6">
+                    To My Love...
+                </h2>
+                <p class="text-xl md:text-2xl text-gray-200 leading-relaxed">
+                    Janamdin ki bohot bohot badhaai, my love! â¤ï¸
+                    Tum meri life mein sabse special ho. Hamesha aise hi happy aur awesome raho.
+                    I'm so lucky to have you. Love you loads!
+                </p>
+            </div>
+            <button id="btn-to-cake" class="mt-12 bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 text-lg">
+                Next Surprise &rarr;
+            </button>
+        </section>
+
+        <!-- ======================= -->
+        <!-- Section 3: Cake & Blow -->
+        <!-- ======================= -->
+        <section id="cake-section" class="hidden flex-col items-center justify-center min-h-screen w-full">
+            <h2 class="text-3xl md:text-5xl font-bold text-yellow-400 mb-4">
+                Make a Wish!
+            </h2>
+            <!-- Instructions updated for button click -->
+            <p id="blow-instructions" class="text-lg text-gray-300 mb-8 max-w-md">
+                Make a wish, and click the button below to blow out your candles!
+            </p>
+            <p id="blow-status" class="text-lg text-green-400 h-8 mb-4"></p>
+            
+            <!-- CSS Cake (mt-16 ensures it is pushed down from the text) -->
+            <div class="relative w-72 h-36 mt-16">
+                <!-- Cake Base -->
+                <div class="w-full h-full bg-orange-200 rounded-b-xl border-b-8 border-orange-300"></div>
+                <!-- Icing -->
+                <div class="absolute -top-6 left-0 w-full h-12 bg-pink-300 rounded-t-full"></div>
+                <!-- Frosting Drips -->
+                <div class="absolute -top-1 left-4 w-6 h-6 bg-pink-300 rounded-full"></div>
+                <div class="absolute -top-1 left-20 w-8 h-8 bg-pink-300 rounded-full"></div>
+                <div class="absolute -top-1 left-40 w-6 h-6 bg-pink-300 rounded-full"></div>
+                <div class="absolute -top-1 left-60 w-7 h-7 bg-pink-300 rounded-full"></div>
+
+                <!-- Candles -->
+                <div class="candles absolute -top-20 left-1/2 -translate-x-1/2 flex gap-8">
+                    <!-- Candle 1 -->
+                    <div class="candle w-4 h-16 bg-blue-400 relative rounded-t-md shadow-md">
+                        <div class="flame active"></div>
+                    </div>
+                    <!-- Candle 2 -->
+                    <div class="candle w-4 h-16 bg-red-400 relative rounded-t-md shadow-md">
+                        <div class="flame active"></div>
+                    </div>
+                    <!-- Candle 3 -->
+                    <div class="candle w-4 h-16 bg-green-400 relative rounded-t-md shadow-md">
+                        <div class="flame active"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button updated to trigger the blow event directly -->
+            <button id="blow-btn" class="mt-12 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                Blow Out Candles!
+            </button>
+            
+            <button id="btn-to-gallery" class="hidden mt-12 bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 text-lg">
+                See Our Memories &darr;
+            </button>
+        </section>
+        
+        <!-- ======================= -->
+        <!-- Section 4: Gallery -->
+        <!-- ======================= -->
+        <section id="gallery-section" class="hidden flex-col items-center justify-center min-h-screen w-full py-20">
+            <h2 class="text-3xl md:text-5xl font-bold text-purple-400 mb-16">
+                A few of my favorite memories...
+            </h2>
+            
+            <!-- Clothesline gallery -->
+            <div class="clothesline-container w-full max-w-6xl">
+                <!-- The "rope" -->
+                <div class="rope"></div>
+                
+                <div class="flex flex-col md:flex-row justify-center items-center md:items-start gap-12 md:gap-16 px-4">
+                    
+                    <!-- Image 1 - FOR LOCAL USE, RENAME YOUR FILE TO 'photo1.jpg' -->
+                    <div class="hanging-photo">
+                        <img src="photo1.jpg" 
+                             alt="Memory 1 - Happy Smile" 
+                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]"
+                             onerror="this.src='https://placehold.co/300x400/333/FFF?text=Image+1+Load+Error'">
+                    </div>
+                    
+                    <!-- Image 2 - FOR LOCAL USE, RENAME YOUR FILE TO 'photo2.jpg' -->
+                    <div class="hanging-photo photo-down">
+                        <img src="photo2.jpg" 
+                             alt="Memory 2 - Good Vibes Selfie" 
+                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]"
+                             onerror="this.src='https://placehold.co/300x400/555/FFF?text=Image+2+Load+Error'">
+                    </div>
+                    
+                    <!-- Image 3 - FOR LOCAL USE, RENAME YOUR FILE TO 'photo3.jpg' -->
+                    <div class="hanging-photo">
+                        <img src="photo3.jpg" 
+                             alt="Memory 3 - Daisy Filter Fun" 
+                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]"
+                             onerror="this.src='https://placehold.co/300x400/777/FFF?text=Image+3+Load+Error'">
+                    </div>
+                    
+                    <!-- Image 4 - FOR LOCAL USE, RENAME YOUR FILE TO 'photo4.jpg' -->
+                    <div class="hanging-photo photo-down">
+                        <img src="photo4.jpg" 
+                             alt="Memory 4 - Cute Couple Pic" 
+                             class="rounded-lg shadow-2xl w-64 md:w-72 object-cover aspect-[3/4]"
+                             onerror="this.src='https://placehold.co/300x400/777/FFF?text=Image+4+Load+Error'">
+                    </div>
+                </div>
+            </div>
+             <p class="mt-16 text-2xl text-pink-400">Happy Birthday, again! â¤ï¸</p>
+        </section>
+
+    </div>
+
+    <script>
+        // --- Global Variables ---
+        let confettiInstance = null;
+
+        // --- Section Elements ---
+        const welcomeSection = document.getElementById('welcome-section');
+        const hinglishSection = document.getElementById('hinglish-section');
+        const cakeSection = document.getElementById('cake-section');
+        const gallerySection = document.getElementById('gallery-section');
+
+        // --- Button Elements ---
+        const btnToHinglish = document.getElementById('btn-to-hinglish');
+        const btnToCake = document.getElementById('btn-to-cake');
+        const btnToGallery = document.getElementById('btn-to-gallery');
+        const blowBtn = document.getElementById('blow-btn'); // New button ID
+        const popBtn = document.getElementById('pop-btn');
+
+        // --- Other UI Elements ---
+        const flames = document.querySelectorAll('.flame');
+        const blowStatus = document.getElementById('blow-status');
+        const blowInstructions = document.getElementById('blow-instructions');
+        
+        let candlesBlown = false;
+
+        // --- Confetti Functions ---
+        function initializeConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            confettiInstance = confetti.create(canvas, {
+                resize: true,
+                useWorker: true
+            });
+            
+            // Initial burst on load
+            triggerConfettiBurst(0.5);
+        }
+
+        function triggerConfettiBurst(yOrigin) {
+            if (!confettiInstance) return;
+            confettiInstance({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: yOrigin },
+                colors: ['#ff69b4', '#00ffff', '#ffff00', '#9f00ff', '#ffffff']
+            });
+        }
+        
+        function triggerConfettiAtElement(element) {
+             if (!confettiInstance) return;
+             const rect = element.getBoundingClientRect();
+             const origin = {
+                x: (rect.left + rect.width / 2) / window.innerWidth,
+                y: (rect.top + rect.height / 2) / window.innerHeight
+            };
+            confettiInstance({
+                particleCount: 100,
+                spread: 70,
+                origin: origin,
+                colors: ['#ff69b4', '#00ffff', '#ffff00', '#9f00ff', '#ffffff']
+            });
+        }
+
+        // --- Page Navigation ---
+        function showSection(sectionToShow) {
+            [welcomeSection, hinglishSection, cakeSection, gallerySection].forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('flex');
+            });
+            sectionToShow.classList.remove('hidden');
+            sectionToShow.classList.add('flex');
+            sectionToShow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        btnToHinglish.addEventListener('click', () => {
+            showSection(hinglishSection);
+            triggerConfettiBurst(0.5);
+        });
+
+        btnToCake.addEventListener('click', () => {
+            showSection(cakeSection);
+            triggerConfettiBurst(0.5);
+        });
+
+        btnToGallery.addEventListener('click', () => {
+            showSection(gallerySection);
+            triggerConfettiBurst(0.2); // From the top
+            triggerConfettiBurst(0.8); // From the bottom
+        });
+        
+        popBtn.addEventListener('click', (e) => {
+            triggerConfettiAtElement(e.currentTarget);
+        });
+
+        // --- New Blow-out Function ---
+        function blowOutCandles() {
+            if (candlesBlown) return; // Prevent multiple clicks
+            candlesBlown = true;
+            
+            // 1. Extinguish flames with transition
+            flames.forEach(flame => {
+                flame.classList.remove('active');
+            });
+
+            // 2. Update UI
+            blowStatus.textContent = "Your wish is granted! ð";
+            blowStatus.classList.add('text-green-400');
+            blowInstructions.textContent = "Thank you for sharing your special day with me!";
+            
+            // 3. Disable button and show next section button
+            blowBtn.disabled = true;
+            blowBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            btnToGallery.classList.remove('hidden');
+            
+            // 4. Final burst!
+            triggerConfettiBurst(0.4);
+        }
+        
+        // --- Attach new click handler ---
+        blowBtn.addEventListener('click', blowOutCandles);
+
+
+        // --- Initialization ---
+        window.addEventListener('load', initializeConfetti);
+
+    </script>
+</body>
+</html>
